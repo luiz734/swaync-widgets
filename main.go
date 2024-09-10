@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/pelletier/go-toml/v2"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -55,7 +56,7 @@ func GetWidgetState(command string) bool {
 	cmd := exec.Command("bash", "-c", command)
 	out, err := cmd.Output()
 	StateOn := err == nil && len(out) != 0
-	println(StateOn, " ", " cmd: "+command)
+	// println(StateOn, " ", " cmd: "+command)
 	return StateOn
 }
 
@@ -76,7 +77,7 @@ func UpdateConfigFiles(cfg Config) {
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
-		panic(err.Error())
+		log.Fatalf("Can't write file at \"%s\". Output is: \n%s", cfg.SwayncReloadCommand, err.Error())
 	}
 
 }
@@ -113,7 +114,7 @@ func sedConfigFile(cfg Config, widgetConfig WidgetConfig) {
 	cmd := exec.Command("bash", "-c", sedCommand)
 	_, err := cmd.Output()
 	if err != nil {
-		panic(err.Error)
+		log.Fatalf("Can't execute command \"%s\". Output is: \n%s\nCheck your config for widget \"%s\"", sedCommand, err.Error(), widgetConfig.Desc)
 	}
 }
 
@@ -145,6 +146,11 @@ func contains(s []string, e string) bool {
 	return false
 }
 
+func ShowUsage(msg string) {
+	usageMsg := "swaync-widgets [wifi|bluetooth|mute|vpn]"
+	log.Fatalf("%s. Usage is: \n%s", msg, usageMsg)
+}
+
 func ParseCliArgs() CliArgs {
 	widget := ""
 	action := ""
@@ -156,11 +162,11 @@ func ParseCliArgs() CliArgs {
 	}
 
 	if !contains([]string{"mute", "vpn", "wifi", "bluetooth", ""}, widget) {
-		panic("Invalid option")
+		ShowUsage("Invalid option " + widget)
 	}
 
 	if !contains([]string{"on", "off", "toggle", ""}, action) {
-		panic("Invalid action")
+		ShowUsage("Invalid option " + action)
 	}
 
 	return CliArgs{
@@ -180,7 +186,7 @@ func ToggleWidget(widgetConfig WidgetConfig) {
 	cmd := exec.Command("bash", "-c", command)
 	_, err := cmd.Output()
 	if err != nil {
-		panic(err.Error)
+		log.Fatalf("Can't execute command \"%s\". Output is: \n%s\nCheck your config for widget \"%s\"", command, err.Error(), widgetConfig.Desc)
 	}
 }
 
@@ -188,19 +194,38 @@ func ReloadConfigFiles(cfg Config) {
 	cmd := exec.Command("bash", "-c", cfg.SwayncReloadCommand)
 	_, err := cmd.Output()
 	if err != nil {
-		panic(err.Error)
+		log.Fatalf("Can't reload config with command \"%s\". Output is: \n%s", cfg.SwayncReloadCommand, err.Error())
+	}
+}
+
+func createConfigFile(filePath string) {
+	err := os.WriteFile(filePath, []byte("brand new config file"), 0755)
+	if err != nil {
+		log.Fatalf("Can't create config file at \"%s\". Output is: \n%s", filePath, err.Error())
 	}
 }
 
 func main() {
 	args := ParseCliArgs()
-	configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
+	// configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
+	configFile := "config.toml"
+
+	// Try to read or create a config file
 	file, err := os.ReadFile(configFile)
 	if err != nil {
-		panic(err)
+		createConfigFile(configFile)
+		file, err = os.ReadFile(configFile)
+		if err != nil {
+			log.Fatalf("Can't read config file at \"%s\". Output is: \n%s", configFile, err.Error())
+		}
 	}
+
+	// Config file should be avaliabe now
 	var cfg Config
 	err = toml.Unmarshal(file, &cfg)
+	if err != nil {
+		log.Fatalf("Error parsing config file at \"%s\". Output is: \n%s", configFile, err.Error())
+	}
 
 	switch args.widget {
 	case "mute":
@@ -211,9 +236,15 @@ func main() {
 		ToggleWidget(cfg.WidgetWifi)
 	case "bluetooth":
 		ToggleWidget(cfg.WidgetBluetooth)
-	case "":
+	default:
 	}
 
 	UpdateConfigFiles(cfg)
 	ReloadConfigFiles(cfg)
+}
+
+type UnknownOptionError string
+
+func (e UnknownOptionError) Error() string {
+	return fmt.Sprintf("Invalid option \"%s\"", e)
 }
