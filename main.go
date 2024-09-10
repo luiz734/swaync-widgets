@@ -42,36 +42,36 @@ type Config struct {
 	WidgetBluetooth        WidgetConfig `toml:"bluetooth"`
 }
 
-func get_widget_css(cfg Config, widgetConfig WidgetConfig) string {
-	state_on := get_widget_state(widgetConfig.CheckStatusCommand)
-	if state_on {
-		return get_on_css(cfg, widgetConfig.Index, widgetConfig.Desc)
+func GetWidgetCss(cfg Config, widgetConfig WidgetConfig) string {
+	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
+	if stateOn {
+		return GetOnCss(cfg, widgetConfig.Index, widgetConfig.Desc)
 	} else {
-		return get_off_css(cfg, widgetConfig.Index, widgetConfig.Desc)
+		return GetOffCss(cfg, widgetConfig.Index, widgetConfig.Desc)
 	}
 }
 
-func get_widget_state(command string) bool {
+func GetWidgetState(command string) bool {
 	cmd := exec.Command("bash", "-c", command)
 	out, err := cmd.Output()
-	state_on := err == nil && len(out) != 0
-	println(state_on, " ", " cmd: "+command)
-	return state_on
+	StateOn := err == nil && len(out) != 0
+	println(StateOn, " ", " cmd: "+command)
+	return StateOn
 }
 
 func UpdateConfigFiles(cfg Config) {
 	outputCss := cfg.CSSPrepend
 
-	outputCss += get_widget_css(cfg, cfg.WidgetVpn)
+	outputCss += GetWidgetCss(cfg, cfg.WidgetVpn)
 	sedConfigFile(cfg, cfg.WidgetVpn)
 
-	outputCss += get_widget_css(cfg, cfg.WidgetMute)
+	outputCss += GetWidgetCss(cfg, cfg.WidgetMute)
 	sedConfigFile(cfg, cfg.WidgetMute)
 
-	outputCss += get_widget_css(cfg, cfg.WidgetWifi)
+	outputCss += GetWidgetCss(cfg, cfg.WidgetWifi)
 	sedConfigFile(cfg, cfg.WidgetWifi)
 
-	outputCss += get_widget_css(cfg, cfg.WidgetBluetooth)
+	outputCss += GetWidgetCss(cfg, cfg.WidgetBluetooth)
 	sedConfigFile(cfg, cfg.WidgetBluetooth)
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
@@ -81,7 +81,7 @@ func UpdateConfigFiles(cfg Config) {
 
 }
 
-func get_on_css(cfg Config, index string, comment string) string {
+func GetOnCss(cfg Config, index string, comment string) string {
 	output := "/* widget " + comment + " */\n"
 	output += cfg.CSSButtonSelector
 	output += "{" + cfg.StylesOn.CssButton + "}\n"
@@ -96,11 +96,11 @@ func get_on_css(cfg Config, index string, comment string) string {
 }
 
 func sedConfigFile(cfg Config, widgetConfig WidgetConfig) {
-	state_on := get_widget_state(widgetConfig.CheckStatusCommand)
+	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
 	firstPart := widgetConfig.OnLabel
 	secondPart := widgetConfig.OffLabel
 	var sedCommand string
-	if state_on {
+	if stateOn {
 		firstPart = widgetConfig.OffLabel
 		secondPart = widgetConfig.OnLabel
 	}
@@ -117,7 +117,7 @@ func sedConfigFile(cfg Config, widgetConfig WidgetConfig) {
 	}
 }
 
-func get_off_css(cfg Config, index string, comment string) string {
+func GetOffCss(cfg Config, index string, comment string) string {
 	output := "/* widget " + comment + " */\n"
 	output += cfg.CSSButtonSelector
 	output += "{" + cfg.StylesOff.CssButton + "}\n"
@@ -145,7 +145,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func parse_cli() CliArgs {
+func ParseCliArgs() CliArgs {
 	widget := ""
 	action := ""
 	if len(os.Args) > 1 {
@@ -169,10 +169,10 @@ func parse_cli() CliArgs {
 	}
 }
 
-func toggle_widget(widgetConfig WidgetConfig) {
-	state_on := get_widget_state(widgetConfig.CheckStatusCommand)
+func ToggleWidget(widgetConfig WidgetConfig) {
+	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
 	var command string
-	if state_on {
+	if stateOn {
 		command = widgetConfig.TurnOffCommand
 	} else {
 		command = widgetConfig.TurnOnCommand
@@ -193,7 +193,7 @@ func ReloadConfigFiles(cfg Config) {
 }
 
 func main() {
-	args := parse_cli()
+	args := ParseCliArgs()
 	configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
 	file, err := os.ReadFile(configFile)
 	if err != nil {
@@ -204,13 +204,13 @@ func main() {
 
 	switch args.widget {
 	case "mute":
-		toggle_widget(cfg.WidgetMute)
+		ToggleWidget(cfg.WidgetMute)
 	case "vpn":
-		toggle_widget(cfg.WidgetVpn)
+		ToggleWidget(cfg.WidgetVpn)
 	case "wifi":
-		toggle_widget(cfg.WidgetWifi)
+		ToggleWidget(cfg.WidgetWifi)
 	case "bluetooth":
-		toggle_widget(cfg.WidgetBluetooth)
+		ToggleWidget(cfg.WidgetBluetooth)
 	case "":
 	}
 
