@@ -1,22 +1,26 @@
 
 swaync_config_file="config.json"
-swaync_css_file="~/home/tohru/.config/swaync/style.css"
-swaync_css_widgets="file.css"
+# swaync_css_file="~/home/tohru/.config/swaync/style.css"
+swaync_css_widgets="/home/tohru/.config/swaync/widgets.css"
+swaync_reload_command="swaync-client --reload-css && swaync-client --reload-config"
 
-css_prepend="@define-color pink rgb(245, 194, 231);"
+css_prepend="@define-color pink rgb(245, 194, 231); @define-color crust rgb(17, 17, 27); @define-color surface0 #313244; @define-color text rgb(205, 214, 244);"
 css_button_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button"
+css_button_hover_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button:hover"
 css_label_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button>label"
-css_label_hover_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button>label:hover"
+css_label_hover_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button:hover>label"
 
 [styles_on]
-css_button="background: green;"
-css_label="color: green;"
-css_label_hover="color: yellow;"
+css_button="background: @pink; border: 2px solid @pink"
+css_button_hover="background: @pink; border: 2px solid @pink"
+css_label="color: @crust;"
+css_label_hover="color: @crust;"
 
 [styles_off]
-css_button="background: red;"
-css_label="color: red;"
-css_label_hover="color: blue;"
+css_button="background: @transparent; border: 2px solid @surface0"
+css_button_hover="background: @transparent; border: 2px solid @pink"
+css_label="color: @text;"
+css_label_hover="color: @pink;"
 
 # widgets
 [vpn]

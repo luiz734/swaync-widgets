@@ -11,12 +11,14 @@ import (
 
 type StylesOn struct {
     CssButton string `toml:"css_button"`
+    CssButtonHover string `toml:"css_button_hover"`
     CssLabel string `toml:"css_label"`
     CssLabelHover string `toml:"css_label_hover"`
 }
 
 type StylesOff struct {
     CssButton string `toml:"css_button"`
+    CssButtonHover string `toml:"css_button_hover"`
     CssLabel string `toml:"css_label"`
     CssLabelHover string `toml:"css_label_hover"`
 }
@@ -35,8 +37,10 @@ type WidgetConfig struct {
 type Config struct {
     SwayncCssWidgets string `toml:"swaync_css_widgets"`
     SwayncConfigFile string `toml:"swaync_config_file"`
+    SwayncReloadCommand string `toml:"swaync_reload_command"`
     CSSPrepend string `toml:"css_prepend"`
     CSSButtonSelector string `toml:"css_button_selector"`
+    CSSButtonHoverSelector string `toml:"css_button_hover_selector"`
     CSSLabelSelector string `toml:"css_label_selector"`
     CSSLabelHoverSelector string `toml:"css_label_hover_selector"`
     StylesOn StylesOn `toml:"styles_on"`
@@ -62,7 +66,7 @@ func get_widget_state(command string) bool {
     return state_on
 }
 
-func update_config_and_css(cfg Config) {
+func UpdateConfigFiles(cfg Config) {
     outputCss := cfg.CSSPrepend
 
     outputCss += get_widget_css(cfg, cfg.WidgetVpn)
@@ -82,6 +86,8 @@ func get_on_css(cfg Config, index string, comment string) string {
     output := "/* widget " +  comment + " */\n"
     output += cfg.CSSButtonSelector
     output += "{" + cfg.StylesOn.CssButton + "}\n"
+    output += cfg.CSSButtonHoverSelector
+    output += "{" + cfg.StylesOn.CssButtonHover + "}\n"
     output += cfg.CSSLabelSelector
     output += "{" + cfg.StylesOn.CssLabel + "}\n"
     output += cfg.CSSLabelHoverSelector
@@ -116,6 +122,8 @@ func get_off_css(cfg Config, index string, comment string) string {
     output := "/* widget " +  comment + " */\n"
     output += cfg.CSSButtonSelector
     output += "{" + cfg.StylesOff.CssButton + "}\n"
+    output += cfg.CSSButtonHoverSelector
+    output += "{" + cfg.StylesOff.CssButtonHover + "}\n"
     output += cfg.CSSLabelSelector
     output += "{" + cfg.StylesOff.CssLabel + "}\n"
     output += cfg.CSSLabelHoverSelector
@@ -139,9 +147,14 @@ func contains(s []string, e string) bool {
 }
 
 func parse_cli() CliArgs {
-    var widget = os.Args[1]
-    // var action = os.Args[2]
-    var action string
+    widget := ""
+    action := ""
+    if len(os.Args) > 1 {
+        widget = os.Args[1]
+    }
+    if len(os.Args) > 2 {
+        widget = os.Args[2]
+    }
 
     if !contains([]string{"mute", "vpn", ""}, widget) {
         panic("Invalid option")
@@ -173,6 +186,14 @@ func toggle_widget(widgetConfig WidgetConfig) {
     }
 }
 
+func ReloadConfigFiles(cfg Config) {
+    cmd := exec.Command("bash", "-c", cfg.SwayncReloadCommand) 
+    _, err := cmd.Output()
+    if err != nil {
+        panic(err.Error)
+    }
+}
+
 func main() {
     args := parse_cli()
     
@@ -189,7 +210,9 @@ func main() {
         toggle_widget(cfg.WidgetMute)
     case "vpn":
         toggle_widget(cfg.WidgetVpn)
+    case "":
     }
 
-    update_config_and_css(cfg)
+    UpdateConfigFiles(cfg)
+    ReloadConfigFiles(cfg)
 }
