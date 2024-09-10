@@ -1,0 +1,39 @@
+
+swaync_config_file="config.json"
+swaync_css_file="~/home/tohru/.config/swaync/style.css"
+swaync_css_widgets="file.css"
+
+css_prepend="@define-color pink rgb(245, 194, 231);"
+css_button_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button"
+css_label_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button>label"
+css_label_hover_selector=".widget-buttons-grid>flowbox>flowboxchild:nth-child(?)>button>label:hover"
+
+[styles_on]
+css_button="background: green;"
+css_label="color: green;"
+css_label_hover="color: yellow;"
+
+[styles_off]
+css_button="background: red;"
+css_label="color: red;"
+css_label_hover="color: blue;"
+
+# widgets
+[vpn]
+desc="vpn"
+index="4"
+off_label="  VPN"
+on_label="  Connected"
+turn_on_command="nmcli con up id user1"
+turn_off_command="nmcli con down id user1"
+check_status_command="nmcli con show --active | grep -i 'vpn'"
+
+[mute]
+desc="mute"
+index="2"
+off_label="󰕾  Mute"
+on_label="󰕾  Muted"
+turn_on_command="pactl set-sink-mute @DEFAULT_SINK@ on"
+turn_off_command="pactl set-sink-mute @DEFAULT_SINK@ off"
+check_status_command="pactl get-sink-mute @DEFAULT_SINK@ | grep \"yes\""
+

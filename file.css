@@ -1,0 +1,8 @@
+@define-color pink rgb(245, 194, 231);/* widget vpn */
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(4)>button{background: red;}
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(4)>button>label{color: red;}
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(4)>button>label:hover{color: blue;}
+/* widget mute */
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(2)>button{background: red;}
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(2)>button>label{color: red;}
+.widget-buttons-grid>flowbox>flowboxchild:nth-child(2)>button>label:hover{color: blue;}
