@@ -38,6 +38,7 @@ type Config struct {
 	StylesOff              Styles       `toml:"styles_off"`
 	WidgetVpn              WidgetConfig `toml:"vpn"`
 	WidgetMute             WidgetConfig `toml:"mute"`
+	WidgetWifi             WidgetConfig `toml:"wifi"`
 }
 
 func get_widget_css(cfg Config, widgetConfig WidgetConfig) string {
@@ -65,6 +66,9 @@ func UpdateConfigFiles(cfg Config) {
 
 	outputCss += get_widget_css(cfg, cfg.WidgetMute)
 	sedConfigFile(cfg, cfg.WidgetMute)
+
+	outputCss += get_widget_css(cfg, cfg.WidgetWifi)
+	sedConfigFile(cfg, cfg.WidgetWifi)
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
@@ -147,7 +151,7 @@ func parse_cli() CliArgs {
 		widget = os.Args[2]
 	}
 
-	if !contains([]string{"mute", "vpn", ""}, widget) {
+	if !contains([]string{"mute", "vpn", "wifi", ""}, widget) {
 		panic("Invalid option")
 	}
 
@@ -199,6 +203,8 @@ func main() {
 		toggle_widget(cfg.WidgetMute)
 	case "vpn":
 		toggle_widget(cfg.WidgetVpn)
+	case "wifi":
+		toggle_widget(cfg.WidgetWifi)
 	case "":
 	}
 

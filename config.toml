@@ -40,3 +40,11 @@ turn_on_command="pactl set-sink-mute @DEFAULT_SINK@ on"
 turn_off_command="pactl set-sink-mute @DEFAULT_SINK@ off"
 check_status_command="pactl get-sink-mute @DEFAULT_SINK@ | grep \"yes\""
 
+[wifi]
+desc="wifi"
+index="1"
+off_label="󱚼   Wi-FI"
+on_label="   Connected"
+turn_on_command="nmcli con up id RedHot_5G"
+turn_off_command="nmcli con down id RedHot_5G"
+check_status_command="nmcli con show --active | grep -i 'wifi'"
