@@ -39,6 +39,7 @@ type Config struct {
 	WidgetVpn              WidgetConfig `toml:"vpn"`
 	WidgetMute             WidgetConfig `toml:"mute"`
 	WidgetWifi             WidgetConfig `toml:"wifi"`
+	WidgetBluetooth        WidgetConfig `toml:"bluetooth"`
 }
 
 func get_widget_css(cfg Config, widgetConfig WidgetConfig) string {
@@ -69,6 +70,9 @@ func UpdateConfigFiles(cfg Config) {
 
 	outputCss += get_widget_css(cfg, cfg.WidgetWifi)
 	sedConfigFile(cfg, cfg.WidgetWifi)
+
+	outputCss += get_widget_css(cfg, cfg.WidgetBluetooth)
+	sedConfigFile(cfg, cfg.WidgetBluetooth)
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
@@ -151,7 +155,7 @@ func parse_cli() CliArgs {
 		widget = os.Args[2]
 	}
 
-	if !contains([]string{"mute", "vpn", "wifi", ""}, widget) {
+	if !contains([]string{"mute", "vpn", "wifi", "bluetooth", ""}, widget) {
 		panic("Invalid option")
 	}
 
@@ -190,7 +194,7 @@ func ReloadConfigFiles(cfg Config) {
 
 func main() {
 	args := parse_cli()
-    configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
+	configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
 	file, err := os.ReadFile(configFile)
 	if err != nil {
 		panic(err)
@@ -205,6 +209,8 @@ func main() {
 		toggle_widget(cfg.WidgetVpn)
 	case "wifi":
 		toggle_widget(cfg.WidgetWifi)
+	case "bluetooth":
+		toggle_widget(cfg.WidgetBluetooth)
 	case "":
 	}
 

@@ -48,3 +48,13 @@ on_label="   Connected"
 turn_on_command="nmcli con up id RedHot_5G"
 turn_off_command="nmcli con down id RedHot_5G"
 check_status_command="nmcli con show --active | grep -i 'wifi'"
+
+
+[bluetooth]
+desc="bluetooth"
+index="3"
+off_label="󰂲  Bluetooth"
+on_label="󰂯  Bluetooth"
+turn_on_command="rfkill unblock bluetooth"
+turn_off_command="rfkill block bluetooth"
+check_status_command="rfkill list bluetooth | grep \"Soft blocked: no\""
