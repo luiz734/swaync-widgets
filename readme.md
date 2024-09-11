@@ -58,7 +58,9 @@ Currently, it supports 4 selectors:
 - The widget label
 - The widget label when hover
 
-For each selector, you define css properties for states `on` and `off`. It will apply the properties based on the widget state.
+For each selector, you define css properties for states `on` and `off`.
+- It will apply the properties based on the widget state.
+- You can't define custom css per widget, only per state
 
 ## Using the tool
 When you call `swaync-widgets` without any args, it updates:
