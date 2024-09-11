@@ -242,9 +242,3 @@ func main() {
 	UpdateConfigFiles(cfg)
 	ReloadConfigFiles(cfg)
 }
-
-type UnknownOptionError string
-
-func (e UnknownOptionError) Error() string {
-	return fmt.Sprintf("Invalid option \"%s\"", e)
-}
