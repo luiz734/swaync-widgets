@@ -1,6 +1,8 @@
 # swaync-widgets
 This tool allows you to dynamically update the `buttons-grid` in your [swaync](https://github.com/ErikReider/SwayNotificationCenter) `config.json` and `styles.css`.
 
+![demo](screenshots/demo.gif)
+
 **Disclaimer:** I've maid this tool for **me**. It's working as I intended by now. I may add features or do bugfixes, but it's always better to clone the repo if you need stuff to be done now. The source code is very compact, so adding new features should not be complicated.
 
 ## How it works
