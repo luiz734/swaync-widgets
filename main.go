@@ -207,8 +207,11 @@ func createConfigFile(filePath string) {
 
 func main() {
 	args := ParseCliArgs()
-	// configFile := os.Getenv("HOME") + "/.config/swaync-widgets/config.toml"
-	configFile := "config.toml"
+    homeDir := os.Getenv("HOME")
+    if homeDir == "" {
+		log.Fatalf("Can't read env $HOME")
+    }
+	configFile := homeDir + "/.config/swaync-widgets/config.toml"
 
 	// Try to read or create a config file
 	file, err := os.ReadFile(configFile)

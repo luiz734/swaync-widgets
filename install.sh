@@ -1,3 +1,4 @@
+#!/bin/env bash
 OUTPUT="swaync-widgets"
 [ -d "build" ] || mkdir build
 go build

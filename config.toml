@@ -64,8 +64,8 @@ desc="wifi"
 index="1"
 off_label="󱚼   Wi-FI"
 on_label="   Connected"
-turn_on_command="nmcli con up id RedHot_5G"
-turn_off_command="nmcli con down id RedHot_5G"
+turn_on_command="nmcli con up id NetworkName"
+turn_off_command="nmcli con down id NetworkName"
 check_status_command="nmcli con show --active | grep -i 'wifi'"
 
 [bluetooth]
