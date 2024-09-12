@@ -32,7 +32,7 @@ css_label_hover="color: @pink;"
 
 # [widget-name]
 # desc: a description to make `widgets.css` more legible
-# index: used on css selector like `div:nth-child(X)`
+# index: used on css selector like `div:nth-child(X)`. 1 is the first index
 # off_label: the label when state is off
 # on_label: the label when state is on
 # turn_on_command: the command that will run when state is off and you call `swaync-widgets widget`
