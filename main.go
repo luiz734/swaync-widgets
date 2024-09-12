@@ -1,12 +1,16 @@
 package main
 
 import (
+	// "fmt"
 	"fmt"
-	"github.com/pelletier/go-toml/v2"
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+
+	"github.com/buger/jsonparser"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Styles struct {
@@ -61,25 +65,26 @@ func GetWidgetState(command string) bool {
 }
 
 func UpdateConfigFiles(cfg Config) {
+	widgetsData := GetWidgetsJsonData(cfg)
 	outputCss := cfg.CSSPrepend
 
 	outputCss += GetWidgetCss(cfg, cfg.WidgetVpn)
-	sedConfigFile(cfg, cfg.WidgetVpn)
+	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetVpn, widgetsData)
 
 	outputCss += GetWidgetCss(cfg, cfg.WidgetMute)
-	sedConfigFile(cfg, cfg.WidgetMute)
+	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetMute, widgetsData)
 
 	outputCss += GetWidgetCss(cfg, cfg.WidgetWifi)
-	sedConfigFile(cfg, cfg.WidgetWifi)
+	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetWifi, widgetsData)
 
 	outputCss += GetWidgetCss(cfg, cfg.WidgetBluetooth)
-	sedConfigFile(cfg, cfg.WidgetBluetooth)
+	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetBluetooth, widgetsData)
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
-		log.Fatalf("Can't write file at \"%s\". Output is: \n%s", cfg.SwayncReloadCommand, err.Error())
+		log.Fatalf("Can't write file at \"%s\". Output is: \n%s", cfg.SwayncCssWidgets, err.Error())
 	}
-
+	UpdateConfigFile(cfg, widgetsData)
 }
 
 func GetOnCss(cfg Config, index string, comment string) string {
@@ -96,25 +101,86 @@ func GetOnCss(cfg Config, index string, comment string) string {
 	return output
 }
 
-func sedConfigFile(cfg Config, widgetConfig WidgetConfig) {
-	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
-	firstPart := widgetConfig.OnLabel
-	secondPart := widgetConfig.OffLabel
-	var sedCommand string
-	if stateOn {
-		firstPart = widgetConfig.OffLabel
-		secondPart = widgetConfig.OnLabel
-	}
-	sedCommand = fmt.Sprintf(
-		"sed -i 's/\"label\": \"%s\"/\"label\": \"%s\"/' \"%s\"",
-		firstPart,
-		secondPart,
-		cfg.SwayncConfigFile)
+type WidgetJsonData struct {
+	Label   string
+	Command string
+}
 
-	cmd := exec.Command("bash", "-c", sedCommand)
-	_, err := cmd.Output()
+func GetWidgetsJsonData(cfg Config) []WidgetJsonData {
+	configFile := cfg.SwayncConfigFile
+	file, err := os.ReadFile(cfg.SwayncConfigFile)
 	if err != nil {
-		log.Fatalf("Can't execute command \"%s\". Output is: \n%s\nCheck your config for widget \"%s\"", sedCommand, err.Error(), widgetConfig.Desc)
+		log.Fatalf("Can't read config file at \"%s\". Output is: \n%s", configFile, err.Error())
+	}
+
+	widgetsJsonPath := []string{"widget-config", "buttons-grid", "actions"}
+	rawBytes, _, _, err := jsonparser.Get(file, widgetsJsonPath...)
+
+	if err != nil {
+		log.Fatalf("Can't parse  file at \"%s\". Output is: \n%s", configFile, err.Error())
+	}
+
+	readJsonKey := func(data []byte, key string) string {
+		value, _, _, err := jsonparser.Get(data, key)
+		if err != nil {
+			log.Panicf("Can't read json key \"%s\" file at \"%s\". Output is: \n%s", key, configFile, err.Error())
+		}
+		return string(value)
+	}
+
+	widgets := []WidgetJsonData{}
+	jsonparser.ArrayEach(rawBytes, func(data []byte, dataType jsonparser.ValueType, offset int, err error) {
+
+		widgets = append(widgets, WidgetJsonData{
+			Label:   readJsonKey(data, "label"),
+			Command: readJsonKey(data, "command"),
+		})
+	})
+
+	return widgets
+}
+
+func UpdateWidgetBasedOnState(cfg Config, widgetConfig WidgetConfig, widgetJsonData []WidgetJsonData) []WidgetJsonData {
+	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
+	index, err := strconv.Atoi(widgetConfig.Index)
+	if err != nil {
+		log.Panicf("Can't convert \"%s\" to integet. Check your config for widget \"%s\"", widgetConfig.Index, widgetConfig.Desc)
+	}
+	// index in config file starts in 1 because CSS
+	index = index - 1
+	// targetWidget := widgetJsonData[index]
+	// fmt.Println(targetWidget, "\n", widgetJsonData[index])
+
+	if stateOn {
+		widgetJsonData[index].Label = widgetConfig.OnLabel
+	} else {
+		widgetJsonData[index].Label = widgetConfig.OffLabel
+	}
+
+	return widgetJsonData
+}
+
+func UpdateConfigFile(cfg Config, widgetsJsonData []WidgetJsonData) {
+	configFile := cfg.SwayncConfigFile
+	file, err := os.ReadFile(cfg.SwayncConfigFile)
+	if err != nil {
+		log.Fatalf("Can't read config file at \"%s\". Output is: \n%s", configFile, err.Error())
+	}
+
+	for i, value := range widgetsJsonData {
+		jsonIndex := "[" + strconv.Itoa(i) + "]"
+		// fmt.Println(jsonIndex)
+		widgetsJsonPath := []string{"widget-config", "buttons-grid", "actions", jsonIndex, "label"}
+        labelDoubleQuotes := fmt.Sprintf("\"%s\"", value.Label)
+		file, err = jsonparser.Set(file, []byte(labelDoubleQuotes), widgetsJsonPath...)
+		if err != nil {
+			log.Fatalf("Can't parse  file at \"%s\". Output is: \n%s", configFile, err.Error())
+		}
+	}
+
+	err = os.WriteFile(cfg.SwayncConfigFile, file, 0755)
+	if err != nil {
+		log.Fatalf("Can't write file at \"%s\". Output is: \n%s", cfg.SwayncConfigFile, err.Error())
 	}
 }
 
@@ -207,10 +273,10 @@ func createConfigFile(filePath string) {
 
 func main() {
 	args := ParseCliArgs()
-    homeDir := os.Getenv("HOME")
-    if homeDir == "" {
+	homeDir := os.Getenv("HOME")
+	if homeDir == "" {
 		log.Fatalf("Can't read env $HOME")
-    }
+	}
 	configFile := homeDir + "/.config/swaync-widgets/config.toml"
 
 	// Try to read or create a config file
