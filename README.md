@@ -119,3 +119,25 @@ This is an example of a generated `widgets.css` file. Its content is made entire
 .widget-buttons-grid>flowbox>flowboxchild:nth-child(3)>button>label{color: @text;}
 .widget-buttons-grid>flowbox>flowboxchild:nth-child(3)>button:hover>label{color: @pink;}
 ```
+
+## Troubleshooting
+### `swaync-widgets` only works when `swaync` is started manually
+This could be a `PATH` problem. If you start `swaync` with Hyprland using `exec-once=swaync`, `swaync` will not have access to the `PATH` declared in your `~/.bashrc` or `~/.zshrc`. You can check the output of `swaync` by using a helper script when starting it and piping the output somewhere.
+
+```bash
+#!/usr/bin/env bash
+swaync > "/home/$USER/swaync-out.txt" 2>&1
+```
+
+Then check for any errors. In my case, the error was `Run_Script Error: Failed to execute child process “swaync-widgets” (No such file or directory)`.
+
+**Solution:** Add a wrapper script with the `PATH` that contains the `swaync-widgets` binary.  
+Example: `~/.config/hypr/scripts/run-swaync.sh`
+
+```bash
+#!/usr/bin/env bash
+PATH=$PATH:/home/$USER/.local/bin
+swaync
+```
+
+Then start it like this: `exec-once = $scriptsDir/run-swaync.sh`
