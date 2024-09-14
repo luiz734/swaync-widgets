@@ -2,15 +2,14 @@ package app
 
 import (
 	"fmt"
+	"github.com/buger/jsonparser"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"github.com/buger/jsonparser"
-    "swaync-widgets/config"
+	"swaync-widgets/config"
 )
-
 
 func GetWidgetCss(cfg config.Config, widgetConfig config.WidgetConfig) string {
 	stateOn := GetWidgetState(widgetConfig.CheckStatusCommand)
@@ -33,17 +32,10 @@ func UpdateConfigFiles(cfg config.Config) {
 	widgetsData := GetWidgetsJsonData(cfg)
 	outputCss := cfg.CSSPrepend
 
-	outputCss += GetWidgetCss(cfg, cfg.WidgetVpn)
-	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetVpn, widgetsData)
-
-	outputCss += GetWidgetCss(cfg, cfg.WidgetMute)
-	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetMute, widgetsData)
-
-	outputCss += GetWidgetCss(cfg, cfg.WidgetWifi)
-	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetWifi, widgetsData)
-
-	outputCss += GetWidgetCss(cfg, cfg.WidgetBluetooth)
-	widgetsData = UpdateWidgetBasedOnState(cfg, cfg.WidgetBluetooth, widgetsData)
+	for _, w := range cfg.Widgets {
+		outputCss += GetWidgetCss(cfg, w)
+		widgetsData = UpdateWidgetBasedOnState(cfg, w, widgetsData)
+	}
 
 	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
@@ -184,4 +176,3 @@ func ReloadConfigFiles(cfg config.Config) {
 		log.Fatalf("Can't reload config with command \"%s\". Output is: \n%s", cfg.SwayncReloadCommand, err.Error())
 	}
 }
-

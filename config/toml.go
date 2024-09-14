@@ -1,21 +1,17 @@
 package config
 
 type Config struct {
-	Foo                    string       `toml:"foo"`
-	SwayncCssWidgets       string       `toml:"swaync_css_widgets"`
-	SwayncConfigFile       string       `toml:"swaync_config_file"`
-	SwayncReloadCommand    string       `toml:"swaync_reload_command"`
-	CSSPrepend             string       `toml:"css_prepend"`
-	CSSButtonSelector      string       `toml:"css_button_selector"`
-	CSSButtonHoverSelector string       `toml:"css_button_hover_selector"`
-	CSSLabelSelector       string       `toml:"css_label_selector"`
-	CSSLabelHoverSelector  string       `toml:"css_label_hover_selector"`
-	StylesOn               Styles       `toml:"styles_on"`
-	StylesOff              Styles       `toml:"styles_off"`
-	WidgetVpn              WidgetConfig `toml:"vpn"`
-	WidgetMute             WidgetConfig `toml:"mute"`
-	WidgetWifi             WidgetConfig `toml:"wifi"`
-	WidgetBluetooth        WidgetConfig `toml:"bluetooth"`
+	SwayncCssWidgets       string         `toml:"swaync_css_widgets"`
+	SwayncConfigFile       string         `toml:"swaync_config_file"`
+	SwayncReloadCommand    string         `toml:"swaync_reload_command"`
+	CSSPrepend             string         `toml:"css_prepend"`
+	CSSButtonSelector      string         `toml:"css_button_selector"`
+	CSSButtonHoverSelector string         `toml:"css_button_hover_selector"`
+	CSSLabelSelector       string         `toml:"css_label_selector"`
+	CSSLabelHoverSelector  string         `toml:"css_label_hover_selector"`
+	StylesOn               Styles         `toml:"styles_on"`
+	StylesOff              Styles         `toml:"styles_off"`
+	Widgets                []WidgetConfig `toml:"widget"`
 }
 
 type WidgetConfig struct {

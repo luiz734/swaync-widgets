@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"log"
+	"fmt"
 	"os"
 )
 
@@ -21,7 +21,8 @@ func contains(s []string, e string) bool {
 
 func ShowUsage(msg string) {
 	usageMsg := "swaync-widgets [wifi|bluetooth|mute|vpn]"
-	log.Fatalf("%s. Usage is: \n%s", msg, usageMsg)
+	fmt.Sprintln("%s. Usage is: \n%s", msg, usageMsg)
+    os.Exit(1)
 }
 
 func ParseCliArgs() CliArgs {
@@ -34,9 +35,9 @@ func ParseCliArgs() CliArgs {
 	// 	widget = os.Args[2]
 	// }
 
-	if !contains([]string{"mute", "vpn", "wifi", "bluetooth", ""}, widget) {
-		ShowUsage("Invalid option " + widget)
-	}
+	// if !contains([]string{"mute", "vpn", "wifi", "bluetooth", ""}, widget) {
+	// 	ShowUsage("Invalid option " + widget)
+	// }
 
 	// if !contains([]string{"on", "off", "toggle", ""}, action) {
 	// 	ShowUsage("Invalid option " + action)

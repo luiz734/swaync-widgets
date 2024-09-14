@@ -41,7 +41,9 @@ css_label_hover="color: @pink;"
 
 # each widget represents one entry in "buttons-grid": "actions": [w1, w2, ...]
 # widgets
-[vpn]
+
+
+[[widget]]
 desc="vpn"
 index="4"
 off_label="  VPN"
@@ -50,7 +52,7 @@ turn_on_command="nmcli con up id user1"
 turn_off_command="nmcli con down id user1"
 check_status_command="nmcli con show --active | grep -i 'vpn'"
 
-[mute]
+[[widget]]
 desc="mute"
 index="2"
 off_label="󰕾  Mute"
@@ -59,7 +61,7 @@ turn_on_command="pactl set-sink-mute @DEFAULT_SINK@ on"
 turn_off_command="pactl set-sink-mute @DEFAULT_SINK@ off"
 check_status_command="pactl get-sink-mute @DEFAULT_SINK@ | grep \"yes\""
 
-[wifi]
+[[widget]]
 desc="wifi"
 index="1"
 off_label="󱚼   Wi-FI"
@@ -68,7 +70,7 @@ turn_on_command="nmcli con up id NetworkName"
 turn_off_command="nmcli con down id NetworkName"
 check_status_command="nmcli con show --active | grep -i 'wifi'"
 
-[bluetooth]
+[[widget]]
 desc="bluetooth"
 index="3"
 off_label="󰂲  Bluetooth"
@@ -76,3 +78,25 @@ on_label="󰂯  Bluetooth"
 turn_on_command="rfkill unblock bluetooth"
 turn_off_command="rfkill block bluetooth"
 check_status_command="rfkill list bluetooth | grep \"Soft blocked: no\""
+
+[[widget]]
+desc="picker"
+index="5"
+off_label="Off"
+on_label="On"
+turn_on_command="touch hello.txt"
+turn_off_command="rm hello.txt"
+check_status_command="cat hello.txt"
+
+# # Follow this template
+# [[widget]]
+# # Usage: swaync-widgets hello
+# desc="hello"
+# index="20"
+# off_label="No"
+# on_label="Yes"
+# # Create/remove the file
+# turn_on_command="touch $HOME/hello.txt"
+# turn_off_command="rm \"$HOME/hello.txt\""
+# # The status is "on" if the file is there
+# check_status_command="ls $HOME | grep \"hello.txt\""
