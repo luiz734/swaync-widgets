@@ -3,7 +3,7 @@ This tool allows you to dynamically update the `buttons-grid` in your [swaync](h
 
 ![demo](screenshots/demo.gif)
 
-**Disclaimer:** I've made this tool for **me**. It's working as I intended by now. I may add features or do bugfixes, but it's always better to clone the repo if you need stuff to be done now. The source code is very compact, so adding new features should not be complicated.
+**Disclaimer:** This project is in a very early stage, so it may not work out of the box. It works with my current [dotfiles](https://github.com/luiz734/dotfiles). Before using it, always keep a backup of your dotfiles.
 
 ## How it works
 This is a snippet from my config file at `~/.config/swaync/config.json`
