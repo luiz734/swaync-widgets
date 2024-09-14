@@ -31,7 +31,7 @@ css_label="color: @text;"
 css_label_hover="color: @pink;"
 
 # [widget-name]
-# desc: a description to make `widgets.css` more legible
+# desc: identifier to use e.g: `swaync-widgets mute`
 # index: used on css selector like `div:nth-child(X)`. 1 is the first index
 # off_label: the label when state is off
 # on_label: the label when state is on

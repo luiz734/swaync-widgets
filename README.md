@@ -32,9 +32,9 @@ For each widget in your `swaync-widgets` config file, you can define commands to
 - Enable a widget
 - Disable a widget
 
-For example, consider the default configuration for the `mute` widget
+For example, consider the default configuration for a `mute` widget
 ```toml
-[mute]
+[[widget]]
 desc="mute"
 index="2"
 off_label="󰕾  Mute"
@@ -45,7 +45,7 @@ check_status_command="pactl get-sink-mute @DEFAULT_SINK@ | grep \"yes\""
 ```
 
 Let's do a quick tour for each option:
-- desc: a description to make `widgets.css` more legible
+- desc: identifier to use e.g: `swaync-widgets mute`
 - index: used on css selector like `div:nth-child(X)`. 1 is the first index
 - off_label: the label when the state is off
 - on_label: the label when the state is on
