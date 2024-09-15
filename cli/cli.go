@@ -17,33 +17,40 @@ func ShowUsage(msg string) {
 	os.Exit(1)
 }
 
-func ParseCliArgs() CliArgs {
+func ParseCliArgs() (*CliArgs, error) {
 	widget := ""
-	// action := ""
-	if len(os.Args) > 1 {
+
+	if len(os.Args) == 2 {
 		widget = os.Args[1]
-	}
-	return CliArgs{
+	} else if len(os.Args) > 2 {
+        return nil, fmt.Errorf("to many arguments")
+
+    }
+	return &CliArgs{
 		Widget: widget,
-	}
+	}, nil
 }
 
+// Try to get a target to work on based on the cli arg
 func (a *CliArgs) TargetWidget(cfg *config.Config) (*config.WidgetConfig, error) {
-
+    // There is no match, but not a problem. The default option (just reload) will be used
 	if a.Widget == "" {
-		return nil, fmt.Errorf("missing required argument <widget>")
+		return nil, nil //fmt.Errorf("missing required argument <widget>")
 	}
-
+    // Finds a matching widget in the config file
 	var targetWidget *config.WidgetConfig
 	var options []string
-
 	for _, w := range cfg.Widgets {
 		options = append(options, w.Desc)
 		if w.Desc == a.Widget {
 			targetWidget = &w
 		}
 	}
-
+    // Nothing to lookup on the config file
+    if len(options) == 0 {
+        return nil, fmt.Errorf("no options avaliable in config file")
+    }
+    // There are stuff to lookup, but none of them match
     var ErrInvalidWidget = fmt.Errorf("options are %s", options)
 	if targetWidget == nil {
         return nil, fmt.Errorf("invalid widget \"%s\": %w", a.Widget, ErrInvalidWidget)
