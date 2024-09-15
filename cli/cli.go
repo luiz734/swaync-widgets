@@ -1,28 +1,20 @@
 package cli
 
 import (
+	// "errors"
 	"fmt"
 	"os"
+	"swaync-widgets/config"
 )
 
 type CliArgs struct {
 	Widget string
-	Action string
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 func ShowUsage(msg string) {
 	usageMsg := "swaync-widgets [wifi|bluetooth|mute|vpn]"
 	fmt.Sprintln("%s. Usage is: \n%s", msg, usageMsg)
-    os.Exit(1)
+	os.Exit(1)
 }
 
 func ParseCliArgs() CliArgs {
@@ -31,20 +23,31 @@ func ParseCliArgs() CliArgs {
 	if len(os.Args) > 1 {
 		widget = os.Args[1]
 	}
-	// if len(os.Args) > 2 {
-	// 	widget = os.Args[2]
-	// }
-
-	// if !contains([]string{"mute", "vpn", "wifi", "bluetooth", ""}, widget) {
-	// 	ShowUsage("Invalid option " + widget)
-	// }
-
-	// if !contains([]string{"on", "off", "toggle", ""}, action) {
-	// 	ShowUsage("Invalid option " + action)
-	// }
-
 	return CliArgs{
 		Widget: widget,
-		Action: "toggle",
 	}
+}
+
+func (a *CliArgs) TargetWidget(cfg *config.Config) (*config.WidgetConfig, error) {
+
+	if a.Widget == "" {
+		return nil, fmt.Errorf("missing required argument <widget>")
+	}
+
+	var targetWidget *config.WidgetConfig
+	var options []string
+
+	for _, w := range cfg.Widgets {
+		options = append(options, w.Desc)
+		if w.Desc == a.Widget {
+			targetWidget = &w
+		}
+	}
+
+    var ErrInvalidWidget = fmt.Errorf("options are %s", options)
+	if targetWidget == nil {
+        return nil, fmt.Errorf("invalid widget \"%s\": %w", a.Widget, ErrInvalidWidget)
+	}
+
+    return targetWidget, nil
 }
