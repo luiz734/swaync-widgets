@@ -1,4 +1,3 @@
-
 package app
 
 import (
@@ -8,18 +7,16 @@ import (
 	// "os"
 	// "os/exec"
 	// "strconv"
+
 	"strings"
 	"swaync-widgets/config"
 )
 
-
-func GenerateWidgetCss(cfg config.Config, widgetConfig config.WidgetConfig) string {
-	stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand)
-	if stateOn {
-		return GenerateOnCss(cfg, widgetConfig.Index, widgetConfig.Desc)
-	} else {
-		return GenerateOffCss(cfg, widgetConfig.Index, widgetConfig.Desc)
+func GenerateWidgetCss(cfg config.Config, widgetConfig config.WidgetConfig) (string, error) {
+    if stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand); stateOn {
+		return GenerateOnCss(cfg, widgetConfig.Index, widgetConfig.Desc), nil
 	}
+	return GenerateOffCss(cfg, widgetConfig.Index, widgetConfig.Desc), nil
 }
 
 func GenerateOnCss(cfg config.Config, index string, comment string) string {
@@ -49,4 +46,3 @@ func GenerateOffCss(cfg config.Config, index string, comment string) string {
 	output = strings.Replace(output, "?", index, -1)
 	return output
 }
-

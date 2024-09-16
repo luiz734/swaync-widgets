@@ -1,19 +1,22 @@
 package app
 
 import (
-	"log"
+	"fmt"
 	"strconv"
 	"swaync-widgets/config"
 )
 
-func UpdateWidgetBasedOnState(cfg config.Config, widgetConfig config.WidgetConfig, widgetJsonData []WidgetJsonData) []WidgetJsonData {
-	stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand)
+func UpdateWidgetBasedOnState(cfg config.Config, widgetConfig config.WidgetConfig, widgetJsonData []WidgetJsonData) ([]WidgetJsonData, error) {
+    stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand)
 	index, err := strconv.Atoi(widgetConfig.Index)
 	if err != nil {
-		log.Panicf("Can't convert \"%s\" to integet. Check your config for widget \"%s\"", widgetConfig.Index, widgetConfig.Desc)
+        return nil, fmt.Errorf("can't convert %s to integer: %w :", err)
 	}
 	// index in config file starts in 1 because CSS
 	index = index - 1
+    if index >= len(widgetJsonData) {
+        return nil, fmt.Errorf("index %s out of bounds: ", widgetConfig.Index)
+    }
 
 	if stateOn {
 		widgetJsonData[index].Label = widgetConfig.OnLabel
@@ -21,6 +24,6 @@ func UpdateWidgetBasedOnState(cfg config.Config, widgetConfig config.WidgetConfi
 		widgetJsonData[index].Label = widgetConfig.OffLabel
 	}
 
-	return widgetJsonData
+	return widgetJsonData, nil
 }
 

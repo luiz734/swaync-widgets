@@ -6,23 +6,21 @@ import (
 	"path/filepath"
 )
 
-func createDirIfNotExists(dirPath string) {
+func createDirIfNotExists(dirPath string) error {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		err := os.MkdirAll(dirPath, os.ModePerm)
-		if err != nil {
-			errMsg := fmt.Sprintln("Can't create config dir at \"%s\". Output is: \n%s", dirPath, err.Error())
-			panic(errMsg)
+		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+			return fmt.Errorf("can't create config dir at %s: %w", dirPath, err)
 		}
 	}
+	return nil
 }
-func createFileIfNotExists(filePath string) {
+func createFileIfNotExists(filePath string) error {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		err := os.WriteFile(filePath, []byte(""), 0755)
-		if err != nil {
-			errMsg := fmt.Sprintln("Can't create config file at \"%s\". Output is: \n%s", filePath, err.Error())
-			panic(errMsg)
+		if err := os.WriteFile(filePath, []byte(""), 0755); err != nil {
+			return fmt.Errorf("can't create file at %s: %w", filePath, err)
 		}
 	}
+	return nil
 }
 
 type PathFromHome struct {
@@ -30,31 +28,42 @@ type PathFromHome struct {
 	CssFile    string
 }
 
-func NewPathFromHome(configFile string, cssFile string) *PathFromHome {
-	homeDir := getHomeDir()
+func NewPathFromHome(configFile string, cssFile string) (*PathFromHome, error) {
+	homeDir, err := getHomeDir()
+	if err != nil {
+        return nil, fmt.Errorf("can't get home dir: %w", err)
+	}
 	return &PathFromHome{
 		ConfigFile: filepath.Join(homeDir, configFile),
 		CssFile:    filepath.Join(homeDir, cssFile),
-	}
+	}, nil
 }
 
-func (f *PathFromHome) CreateFilesAndDirs() {
+func (f *PathFromHome) CreateFilesAndDirs() error {
 	configFileDir := filepath.Dir(f.ConfigFile)
 	configCssDir := filepath.Dir(f.ConfigFile)
 
-	createDirIfNotExists(configFileDir)
-	createDirIfNotExists(configCssDir)
-
-	createFileIfNotExists(f.ConfigFile)
-	createFileIfNotExists(f.CssFile)
-}
-
-func getHomeDir() string {
-	homeDir := os.Getenv("HOME")
-	if homeDir == "" {
-		errMsg := fmt.Sprintln("Can't read env $HOME")
-		panic(errMsg)
+	if err := createDirIfNotExists(configFileDir); err != nil {
+		return fmt.Errorf("can't create config dir: %w", err)
+	}
+	if err := createDirIfNotExists(configCssDir); err != nil {
+		return fmt.Errorf("can't create css dir: %w", err)
+	}
+	if err := createFileIfNotExists(f.ConfigFile); err != nil {
+		return fmt.Errorf("can't create config file: %w", err)
 	}
 
-	return homeDir
+	if err := createFileIfNotExists(f.CssFile); err != nil {
+		return fmt.Errorf("can't create css file: %w", err)
+	}
+
+	return nil
+}
+
+func getHomeDir() (string, error) {
+	homeDir := os.Getenv("HOME")
+	if homeDir == "" {
+		return "", fmt.Errorf("can't read env $HOME")
+	}
+	return homeDir, nil
 }

@@ -23,7 +23,7 @@ func ParseCliArgs() (*CliArgs, error) {
 	if len(os.Args) == 2 {
 		widget = os.Args[1]
 	} else if len(os.Args) > 2 {
-        return nil, fmt.Errorf("to many arguments")
+        return nil, fmt.Errorf("too many arguments")
 
     }
 	return &CliArgs{

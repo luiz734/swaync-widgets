@@ -1,25 +1,36 @@
 package app
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"swaync-widgets/config"
 )
 
-func WriteConfigAndCss(cfg config.Config) {
-	widgetsData := ReadWidgetsJsonData(cfg)
+func WriteConfigAndCss(cfg config.Config) error {
+	widgetsData, err := ReadWidgetsJsonData(cfg)
+	if err != nil {
+		return fmt.Errorf("error getting widgets data: %w", err)
+	}
 	outputCss := cfg.CSSPrepend
 
 	for _, w := range cfg.Widgets {
-		outputCss += GenerateWidgetCss(cfg, w)
-		widgetsData = UpdateWidgetBasedOnState(cfg, w, widgetsData)
+		widgetCss, err := GenerateWidgetCss(cfg, w)
+		if err != nil {
+			return fmt.Errorf("can't generate css: %w", err)
+		}
+		outputCss += widgetCss
+		widgetsData, err = UpdateWidgetBasedOnState(cfg, w, widgetsData)
+		if err != nil {
+			return fmt.Errorf("error retrieving data for widget %s: %w", w.Desc, err)
+		}
 	}
 
-	err := os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
+	err = os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0755)
 	if err != nil {
-		log.Fatalf("Can't write file at \"%s\". Output is: \n%s", cfg.SwayncCssWidgets, err.Error())
+		return fmt.Errorf("can't write file at %s: %w", cfg.SwayncCssWidgets, err)
 	}
-	WriteConfigFile(cfg, widgetsData)
+	if err := WriteConfigFile(cfg, widgetsData); err != nil {
+		return fmt.Errorf("can't write config file: %w", err)
+	}
+	return nil
 }
-
-
