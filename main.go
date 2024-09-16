@@ -35,10 +35,16 @@ func main() {
 	var cfg config.Config
 	err = toml.Unmarshal(file, &cfg)
 	if err != nil {
-		errMsg := fmt.Errorf("can't parse config file: %w", err)
+        errMsg := fmt.Errorf("can't parse config file: %w: ", err)
 		fmt.Fprintf(os.Stderr, errMsg.Error())
 		os.Exit(1)
 	}
+	// Validate structs
+    if err := config.ValidateConfig(cfg); err != nil {
+		errMsg := fmt.Errorf("can't validate config file: %w", err)
+		fmt.Fprintf(os.Stderr, errMsg.Error())
+		os.Exit(1)
+    }
 	// Parse arguments
 	args, err := cli.ParseCliArgs()
 	if err != nil {
