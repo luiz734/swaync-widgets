@@ -69,7 +69,7 @@ func main() {
 	}
 	// Update both config and widgets css files, them reload swaync
 	if err := app.WriteConfigAndCss(cfg); err != nil {
-		errMsg := fmt.Errorf("can't write config and css: %w", err)
+        errMsg := fmt.Errorf("can't write config and css: %w: ", err)
 		fmt.Fprintf(os.Stderr, errMsg.Error())
 		os.Exit(1)
 	}
