@@ -5,6 +5,13 @@ This tool allows you to dynamically update the `buttons-grid` in your [swaync](h
 
 **Disclaimer:** This project is in a very early stage, so it may not work out of the box. It works with my current [dotfiles](https://github.com/luiz734/dotfiles). Before using it, always keep a backup of your dotfiles.
 
+## Arch users
+You can install from AUR (thanks to [madko](https://aur.archlinux.org/account/madko)):
+```bash
+yay -S swaync-widgets-git
+```
+I added a PKGBUILD file in commit [d5052e1](https://github.com/luiz734/swaync-widgets/commit/d5052e18528acd898e891b91d097ebb483480cec), but since there is already one in AUR, I removed it.
+
 ## How it works
 This is a snippet from my config file at `~/.config/swaync/config.json`
 ```json
