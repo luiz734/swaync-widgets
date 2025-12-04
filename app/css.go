@@ -9,13 +9,15 @@ import (
 	// "strconv"
 
 	"strings"
+
 	"swaync-widgets/config"
 )
 
 func GenerateWidgetCss(cfg config.Config, widgetConfig config.WidgetConfig) (string, error) {
-    if stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand); stateOn {
+	if stateOn := RunGetWidgetState(widgetConfig.CheckStatusCommand); stateOn {
 		return GenerateOnCss(cfg, widgetConfig.Index, widgetConfig.Desc), nil
 	}
+
 	return GenerateOffCss(cfg, widgetConfig.Index, widgetConfig.Desc), nil
 }
 

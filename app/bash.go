@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os/exec"
+
 	"swaync-widgets/config"
 )
 
@@ -14,18 +15,23 @@ func RunToggleWidget(widgetConfig config.WidgetConfig) error {
 	} else {
 		command = widgetConfig.TurnOnCommand
 	}
+
 	cmd := exec.Command("bash", "-c", command)
 	if _, err := cmd.Output(); err != nil {
 		return fmt.Errorf("error running command \"%s\" %w", command, err)
 	}
 
-    return nil
+	return nil
 }
 
 func RunReloadConfigFiles(cfg config.Config) error {
-	cmd := exec.Command("bash", "-c", cfg.SwayncReloadCommand)
+	cmd := exec.Command("bash", "-c", config.ExpandPath(cfg.SwayncReloadCommand))
 	if _, err := cmd.Output(); err != nil {
-		return fmt.Errorf("error running command \"%s\" %w", cfg.SwayncReloadCommand, err)
+		return fmt.Errorf(
+			"error running command \"%s\" %w",
+			config.ExpandPath(cfg.SwayncReloadCommand),
+			err,
+		)
 	}
 
 	return nil
@@ -42,7 +48,7 @@ func RunGetWidgetState(command string) bool {
 	cmd := exec.Command("bash", "-c", command)
 	out, err := cmd.Output()
 
-    // This will not work as explained above
+	// This will not work as explained above
 	// if err != nil {
 	//        var exitErr *exec.ExitError
 	// 	if errors.As(err, &exitErr) {
