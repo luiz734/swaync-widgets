@@ -75,7 +75,7 @@ func WriteConfigFile(cfg config.Config, widgetsJsonData []WidgetJsonData) error 
 		}
 	}
 
-	if err := os.WriteFile(cfg.SwayncConfigFile, file, 0755); err != nil {
+	if err := os.WriteFile(cfg.SwayncConfigFile, file, 0o644); err != nil {
 		return fmt.Errorf("can't write file %s: %w", cfg.SwayncConfigFile, err)
 	}
 	return nil
