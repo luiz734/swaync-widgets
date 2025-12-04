@@ -23,9 +23,9 @@ func RunToggleWidget(widgetConfig config.WidgetConfig) error {
 }
 
 func RunReloadConfigFiles(cfg config.Config) error {
-	cmd := exec.Command("bash", "-c", cfg.SwayncReloadCommand)
+	cmd := exec.Command("bash", "-c", config.ExpandPath(cfg.SwayncReloadCommand))
 	if _, err := cmd.Output(); err != nil {
-		return fmt.Errorf("error running command \"%s\" %w", cfg.SwayncReloadCommand, err)
+		return fmt.Errorf("error running command \"%s\" %w", config.ExpandPath(cfg.SwayncReloadCommand), err)
 	}
 
 	return nil

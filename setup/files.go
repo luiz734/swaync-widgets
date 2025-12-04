@@ -16,7 +16,7 @@ func createDirIfNotExists(dirPath string) error {
 }
 func createFileIfNotExists(filePath string) error {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		if err := os.WriteFile(filePath, []byte(""), 0755); err != nil {
+		if err := os.WriteFile(filePath, []byte(""), 0o644); err != nil {
 			return fmt.Errorf("can't create file at %s: %w", filePath, err)
 		}
 	}
