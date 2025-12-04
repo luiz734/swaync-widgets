@@ -16,7 +16,7 @@ type WidgetJsonData struct {
 
 func ReadWidgetsJsonData(cfg config.Config) ([]WidgetJsonData, error) {
 	configFile := cfg.SwayncConfigFile
-	file, err := os.ReadFile(cfg.SwayncConfigFile)
+	file, err := os.ReadFile(config.ExpandPath(cfg.SwayncConfigFile))
 	if err != nil {
 		return nil, fmt.Errorf("can't read file %s: %w", configFile, err)
 	}
@@ -60,9 +60,9 @@ func ReadWidgetsJsonData(cfg config.Config) ([]WidgetJsonData, error) {
 }
 
 func WriteConfigFile(cfg config.Config, widgetsJsonData []WidgetJsonData) error {
-	file, err := os.ReadFile(cfg.SwayncConfigFile)
+	file, err := os.ReadFile(config.ExpandPath(cfg.SwayncConfigFile))
 	if err != nil {
-		return fmt.Errorf("can't read file %s: %w", cfg.SwayncConfigFile, err)
+		return fmt.Errorf("can't read file %s: %w", config.ExpandPath(cfg.SwayncConfigFile), err)
 	}
 
 	for i, value := range widgetsJsonData {
@@ -71,12 +71,12 @@ func WriteConfigFile(cfg config.Config, widgetsJsonData []WidgetJsonData) error 
 		labelDoubleQuotes := fmt.Sprintf("\"%s\"", value.Label)
 		file, err = jsonparser.Set(file, []byte(labelDoubleQuotes), widgetsJsonPath...)
 		if err != nil {
-			return fmt.Errorf("can't parse file %s: %w", cfg.SwayncConfigFile, err)
+			return fmt.Errorf("can't parse file %s: %w", config.ExpandPath(cfg.SwayncConfigFile), err)
 		}
 	}
 
-	if err := os.WriteFile(cfg.SwayncConfigFile, file, 0o644); err != nil {
-		return fmt.Errorf("can't write file %s: %w", cfg.SwayncConfigFile, err)
+	if err := os.WriteFile(config.ExpandPath(cfg.SwayncConfigFile), file, 0o644); err != nil {
+		return fmt.Errorf("can't write file %s: %w", config.ExpandPath(cfg.SwayncConfigFile), err)
 	}
 	return nil
 }

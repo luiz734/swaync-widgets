@@ -25,7 +25,7 @@ func WriteConfigAndCss(cfg config.Config) error {
 		}
 	}
 
-	err = os.WriteFile(cfg.SwayncCssWidgets, []byte(outputCss), 0o644)
+	err = os.WriteFile(config.ExpandPath(cfg.SwayncCssWidgets), []byte(outputCss), 0o644)
 	if err != nil {
 		return fmt.Errorf("can't write css file: %w", err)
 	}
