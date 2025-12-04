@@ -12,14 +12,17 @@ func createDirIfNotExists(dirPath string) error {
 			return fmt.Errorf("can't create config dir at %s: %w", dirPath, err)
 		}
 	}
+
 	return nil
 }
+
 func createFileIfNotExists(filePath string) error {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		if err := os.WriteFile(filePath, []byte(""), 0o644); err != nil {
 			return fmt.Errorf("can't create file at %s: %w", filePath, err)
 		}
 	}
+
 	return nil
 }
 
@@ -31,8 +34,9 @@ type PathFromHome struct {
 func NewPathFromHome(configFile string, cssFile string) (*PathFromHome, error) {
 	homeDir, err := getHomeDir()
 	if err != nil {
-        return nil, fmt.Errorf("can't get home dir: %w", err)
+		return nil, fmt.Errorf("can't get home dir: %w", err)
 	}
+
 	return &PathFromHome{
 		ConfigFile: filepath.Join(homeDir, configFile),
 		CssFile:    filepath.Join(homeDir, cssFile),
@@ -46,9 +50,11 @@ func (f *PathFromHome) CreateFilesAndDirs() error {
 	if err := createDirIfNotExists(configFileDir); err != nil {
 		return fmt.Errorf("can't create config dir: %w", err)
 	}
+
 	if err := createDirIfNotExists(configCssDir); err != nil {
 		return fmt.Errorf("can't create css dir: %w", err)
 	}
+
 	if err := createFileIfNotExists(f.ConfigFile); err != nil {
 		return fmt.Errorf("can't create config file: %w", err)
 	}
@@ -65,5 +71,6 @@ func getHomeDir() (string, error) {
 	if homeDir == "" {
 		return "", fmt.Errorf("can't read env $HOME")
 	}
+
 	return homeDir, nil
 }

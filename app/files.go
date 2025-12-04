@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+
 	"swaync-widgets/config"
 )
 
@@ -29,8 +30,10 @@ func WriteConfigAndCss(cfg config.Config) error {
 	if err != nil {
 		return fmt.Errorf("can't write css file: %w", err)
 	}
+
 	if err := WriteConfigFile(cfg, widgetsData); err != nil {
 		return fmt.Errorf("can't write config file: %w", err)
 	}
+
 	return nil
 }

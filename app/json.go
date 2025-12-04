@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
 	"swaync-widgets/config"
 
 	"github.com/buger/jsonparser"
@@ -35,22 +36,25 @@ func ReadWidgetsJsonData(cfg config.Config) ([]WidgetJsonData, error) {
 		return string(value), nil
 	}
 	widgets := []WidgetJsonData{}
-	jsonparser.ArrayEach(rawBytes, func(data []byte, dataType jsonparser.ValueType, offset int, err error) {
-		var label string
-		var command string
-		if label, err = readJsonKey(data, "label"); err != nil {
-			err = fmt.Errorf("can't read label key: %w", err)
-			return
-		}
-		if command, err = readJsonKey(data, "command"); err != nil {
-			err = fmt.Errorf("can't read command key: %w", err)
-			return
-		}
-		widgets = append(widgets, WidgetJsonData{
-			Label:   label,
-			Command: command,
-		})
-	})
+	jsonparser.ArrayEach(
+		rawBytes,
+		func(data []byte, dataType jsonparser.ValueType, offset int, err error) {
+			var label string
+			var command string
+			if label, err = readJsonKey(data, "label"); err != nil {
+				err = fmt.Errorf("can't read label key: %w", err)
+				return
+			}
+			if command, err = readJsonKey(data, "command"); err != nil {
+				err = fmt.Errorf("can't read command key: %w", err)
+				return
+			}
+			widgets = append(widgets, WidgetJsonData{
+				Label:   label,
+				Command: command,
+			})
+		},
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("error processing widgets array: %w", err)
@@ -71,12 +75,17 @@ func WriteConfigFile(cfg config.Config, widgetsJsonData []WidgetJsonData) error 
 		labelDoubleQuotes := fmt.Sprintf("\"%s\"", value.Label)
 		file, err = jsonparser.Set(file, []byte(labelDoubleQuotes), widgetsJsonPath...)
 		if err != nil {
-			return fmt.Errorf("can't parse file %s: %w", config.ExpandPath(cfg.SwayncConfigFile), err)
+			return fmt.Errorf(
+				"can't parse file %s: %w",
+				config.ExpandPath(cfg.SwayncConfigFile),
+				err,
+			)
 		}
 	}
 
 	if err := os.WriteFile(config.ExpandPath(cfg.SwayncConfigFile), file, 0o644); err != nil {
 		return fmt.Errorf("can't write file %s: %w", config.ExpandPath(cfg.SwayncConfigFile), err)
 	}
+
 	return nil
 }
